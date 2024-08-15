@@ -1,4 +1,5 @@
 __pycache__
 *.pyc
 flaskapivenv/
-web.config
+web.config/
+/web.config

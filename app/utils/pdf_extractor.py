@@ -74,7 +74,7 @@ def extract_pdf_sections(pdf_contents: bytes) -> dict:
         "PRIIPsKIDUnableToPayOut": r"What happens if.*?\s*(.*?)\s*(?=\bWhat are the costs\b)",
         "PRIIPsKIDTakeMoneyOutEarly": r"How long should I hold it and can I take money out early\?\s*(.*?)\s*(?=\bHow can I complain\b)",
         "PRIIPsKIDComplaints": r"How can I complain\?\s*(.*?)\s*(?=\bOther relevant information\b)",
-        "PRIIPsKIDOtherInfoEU": r"Other relevant information\s*(.*)"
+        "PRIIPsKIDOtherInfoEU": r"(?:.*Other relevant information\s*)+(.*)"
     }
 
     # Extract the sections separately

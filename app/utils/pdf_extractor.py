@@ -5,13 +5,13 @@ import io
 
 
 def decorate_passage(passage: str) -> str:
-    # Remove existing newlines within sentences, but keep paragraphs intact
-    passage = re.sub(r'(?<!\n)\n(?!\n)', ' ', passage.strip())
-    # Add a newline after end-of-sentence punctuation (., !, ?)
-    # passage = re.sub(r'(?<=[.!?])\s+(?=\S)', '\n', passage)
+    # Remove single newlines that are not preceded by sentence-ending punctuation
+    refined = re.sub(r'(?<![.!?])\n(?!\n)', ' ', passage)
+    # Remove any extra spaces that might have been created
+    refined = re.sub(r' +', ' ', refined)
     # Ensure there's no extra space or newline at the beginning or end
-    passage = passage.strip()
-    return passage
+    refined = refined.strip()
+    return refined
 
 
 def remove_page_lines(text: str) -> str:

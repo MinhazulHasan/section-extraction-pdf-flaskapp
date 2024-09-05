@@ -4,6 +4,22 @@ import re
 import io
 
 
+def decorate_passage(passage: str) -> str:
+    # Remove existing newlines within sentences, but keep paragraphs intact
+    passage = re.sub(r'(?<!\n)\n(?!\n)', ' ', passage.strip())
+    # Add a newline after end-of-sentence punctuation (., !, ?)
+    # passage = re.sub(r'(?<=[.!?])\s+(?=\S)', '\n', passage)
+    # Ensure there's no extra space or newline at the beginning or end
+    passage = passage.strip()
+    return passage
+
+
+def remove_page_lines(text: str) -> str:
+    # Remove any line containing "Page - " pattern
+    cleaned_text = re.sub(r'^.*Page\s*-\s*\d+.*$\n?', '', text, flags=re.MULTILINE)
+    return cleaned_text
+
+
 def clean_extracted_text(text: str) -> str:
     # Remove page numbers or similar structured text
     pattern = r'^.*[Pp]age\s*-\s*\d+\s*of\s*\d+.*$\n?'
@@ -69,6 +85,8 @@ def extract_pdf_sections(pdf_contents: bytes) -> dict:
             re.search(patterns["PRIIPSKIDTypeOption"], extracted_text_pdfminer, re.DOTALL).group(1).strip()
             if re.search(patterns["PRIIPSKIDTypeOption"], extracted_text_pdfminer, re.DOTALL) else ""
         )
+        extracted_sections_type_option["PRIIPSKIDTypeOption"] = decorate_passage(extracted_sections_type_option["PRIIPSKIDTypeOption"])
+
 
     extracted_sections_term = {}
     if "PRIIPsKIDTerm" in patterns:
@@ -76,6 +94,8 @@ def extract_pdf_sections(pdf_contents: bytes) -> dict:
             re.search(patterns["PRIIPsKIDTerm"], extracted_text_pdfminer, re.DOTALL).group(1).strip()
             if re.search(patterns["PRIIPsKIDTerm"], extracted_text_pdfminer, re.DOTALL) else ""
         )
+        extracted_sections_term["PRIIPsKIDTerm"] = decorate_passage(extracted_sections_term["PRIIPsKIDTerm"])
+
 
     extracted_sections_objective = {}
     if "PRIIPsKIDObjective" in patterns:
@@ -83,6 +103,8 @@ def extract_pdf_sections(pdf_contents: bytes) -> dict:
             re.search(patterns["PRIIPsKIDObjective"], extracted_text_pdfminer, re.DOTALL).group(1).strip()
             if re.search(patterns["PRIIPsKIDObjective"], extracted_text_pdfminer, re.DOTALL) else ""
         )
+        extracted_sections_objective["PRIIPsKIDObjective"] = decorate_passage(extracted_sections_objective["PRIIPsKIDObjective"])
+
 
     extracted_sections_target_market = {}
     if "PRIIPsKIDTargetMarket" in patterns:
@@ -90,6 +112,8 @@ def extract_pdf_sections(pdf_contents: bytes) -> dict:
             re.search(patterns["PRIIPsKIDTargetMarket"], extracted_text_pdfminer, re.DOTALL).group(1).strip()
             if re.search(patterns["PRIIPsKIDTargetMarket"], extracted_text_pdfminer, re.DOTALL) else ""
         )
+        extracted_sections_target_market["PRIIPsKIDTargetMarket"] = decorate_passage(extracted_sections_target_market["PRIIPsKIDTargetMarket"])
+
 
     extracted_sections_other_risks = {}
     if "PRIIPsKIDOtherRisks" in patterns:
@@ -98,6 +122,8 @@ def extract_pdf_sections(pdf_contents: bytes) -> dict:
             if re.search(patterns["PRIIPsKIDOtherRisks"], extracted_text_pdfminer, re.DOTALL) else ""
         )
         extracted_sections_other_risks["PRIIPsKIDOtherRisks"] = extracted_sections_other_risks["PRIIPsKIDOtherRisks"].replace("!", "")
+        extracted_sections_other_risks["PRIIPsKIDOtherRisks"] = decorate_passage(extracted_sections_other_risks["PRIIPsKIDOtherRisks"])
+
 
     extracted_sections_unable_to_pay_out = {}
     if "PRIIPsKIDUnableToPayOut" in patterns:
@@ -105,6 +131,8 @@ def extract_pdf_sections(pdf_contents: bytes) -> dict:
             re.search(patterns["PRIIPsKIDUnableToPayOut"], extracted_text_pdfminer, re.DOTALL).group(1).strip()
             if re.search(patterns["PRIIPsKIDUnableToPayOut"], extracted_text_pdfminer, re.DOTALL) else ""
         )
+        extracted_sections_unable_to_pay_out["PRIIPsKIDUnableToPayOut"] = decorate_passage(extracted_sections_unable_to_pay_out["PRIIPsKIDUnableToPayOut"])
+
 
     extracted_sections_take_money_out_early = {}
     if "PRIIPsKIDTakeMoneyOutEarly" in patterns:
@@ -112,6 +140,8 @@ def extract_pdf_sections(pdf_contents: bytes) -> dict:
             re.search(patterns["PRIIPsKIDTakeMoneyOutEarly"], extracted_text_pdfminer, re.DOTALL).group(1).strip()
             if re.search(patterns["PRIIPsKIDTakeMoneyOutEarly"], extracted_text_pdfminer, re.DOTALL) else ""
         )
+        extracted_sections_take_money_out_early["PRIIPsKIDTakeMoneyOutEarly"] = decorate_passage(extracted_sections_take_money_out_early["PRIIPsKIDTakeMoneyOutEarly"])
+
 
     extracted_sections_complaints = {}
     if "PRIIPsKIDComplaints" in patterns:
@@ -119,13 +149,17 @@ def extract_pdf_sections(pdf_contents: bytes) -> dict:
             re.search(patterns["PRIIPsKIDComplaints"], ectracted_text_pdfplumber, re.DOTALL).group(1).strip()
             if re.search(patterns["PRIIPsKIDComplaints"], ectracted_text_pdfplumber, re.DOTALL) else ""
         )
+        extracted_sections_complaints["PRIIPsKIDComplaints"] = decorate_passage(extracted_sections_complaints["PRIIPsKIDComplaints"])
+
 
     extracted_sections_other_info_eu = {}
     if "PRIIPsKIDOtherInfoEU" in patterns:
         extracted_sections_other_info_eu["PRIIPsKIDOtherInfoEU"] = (
-            re.search(patterns["PRIIPsKIDOtherInfoEU"], extracted_text_pdfminer, re.DOTALL).group(1).strip()
-            if re.search(patterns["PRIIPsKIDOtherInfoEU"], extracted_text_pdfminer, re.DOTALL) else ""
+            re.search(patterns["PRIIPsKIDOtherInfoEU"], extracted_text_pdfplumber, re.DOTALL).group(1).strip()
+            if re.search(patterns["PRIIPsKIDOtherInfoEU"], extracted_text_pdfplumber, re.DOTALL) else ""
         )
+        extracted_sections_other_info_eu["PRIIPsKIDOtherInfoEU"] = remove_page_lines(extracted_sections_other_info_eu["PRIIPsKIDOtherInfoEU"])
+
 
     # Merge the sections
     merged_sections = {
